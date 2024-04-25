@@ -128,7 +128,7 @@ RUN git clone https://aur.archlinux.org/paru-bin.git --single-branch && \
     paru -S \
         aur/xcursor-breeze5 \
         aur/adw-gtk3 \
-        aur/gallery-dl-bin
+        aur/gallery-dl-bin \
         --noconfirm
 USER root
 WORKDIR /
