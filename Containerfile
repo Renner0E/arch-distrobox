@@ -78,6 +78,45 @@ RUN pacman -S \
         vulkan-radeon \
         --noconfirm
 
+# My Own custom packages I need
+RUN pacman -S \
+        android-tools \
+        base-devel \
+        btop \
+        curl \
+        dos2unix \
+        ffmpeg \
+        fzf \
+        git \
+        htop \
+        iftop \
+        lf \
+        man \
+        mediainfo \
+        neovim \
+        nvtop \
+        openssl \
+        p7zip \
+        qrencode \
+        rsync \
+        scrcpy \
+        shellcheck \
+        stress \
+        tldr \
+        tmux \
+        unarchiver \
+        unrar \
+        wget \
+        wl-clipboard \
+        xorg-xev \
+        xorg-xkill \
+        yt-dlp \
+        zsh \
+        zsh-autosuggestions \
+        zsh-completions \
+        zsh-syntax-highlighting \
+        --noconfirm
+
 # Add paru and install AUR packages
 USER build
 WORKDIR /home/build
@@ -89,6 +128,7 @@ RUN git clone https://aur.archlinux.org/paru-bin.git --single-branch && \
     paru -S \
         aur/xcursor-breeze5 \
         aur/adw-gtk3 \
+        aur/gallery-dl-bin
         --noconfirm
 USER root
 WORKDIR /
