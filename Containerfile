@@ -98,6 +98,7 @@ RUN pacman -S \
         openssl \
         p7zip \
         qrencode \
+        rclone \
         rsync \
         scrcpy \
         shellcheck \
