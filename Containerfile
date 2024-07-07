@@ -67,6 +67,7 @@ RUN pacman -S \
         util-linux \
         util-linux-libs \
         vte-common \
+        svn \
         wget \
         words \
         xorg-xauth \
