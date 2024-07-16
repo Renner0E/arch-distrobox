@@ -1,78 +1,91 @@
-FROM ghcr.io/ublue-os/arch-distrobox AS bazzite-arch
+FROM quay.io/toolbx/arch-toolbox AS arch-distrobox
 
-COPY system_files /
-
-# Install needed packages
-RUN pacman -S \
-        lib32-vulkan-radeon \
-        libva-mesa-driver \
-        intel-media-driver \
-        vulkan-mesa-layers \
-        lib32-vulkan-mesa-layers \
-        lib32-libnm \
-        openal \
-        pipewire \
-        pipewire-pulse \
-        pipewire-alsa \
-        pipewire-jack \
-        wireplumber \
-        lib32-pipewire \
-        lib32-pipewire-jack \
-        lib32-libpulse \
-        lib32-openal \
-        xdg-desktop-portal-kde \
-        vim \
-        nano \
-        hyfetch \
-        fish \
-        yad \
-        xdg-user-dirs \
-        xdotool \
-        xorg-xwininfo \
-        wmctrl \
-        wxwidgets-gtk3 \
-        rocm-opencl-runtime \
-        rocm-hip-runtime \
-        libbsd \
-        noto-fonts-cjk \
-        glibc-locales \
-        --noconfirm && \
-    pacman -S \
-        steam \
-        lutris \
-        mangohud \
-        lib32-mangohud \
-        --noconfirm && \
-        wget https://raw.githubusercontent.com/Shringe/LatencyFleX-Installer/main/install.sh -O /usr/bin/latencyflex && \
-        sed -i 's@"dxvk.conf"@"/usr/share/latencyflex/dxvk.conf"@g' /usr/bin/latencyflex && \
-        chmod +x /usr/bin/latencyflex
-        # Steam/Lutris/Wine installed separately so they use the dependencies above and don't try to install their own.
-
+# Pacman Initialization
 # Create build user
-RUN useradd -m --shell=/bin/bash build && usermod -L build && \
+RUN sed -i 's/#Color/Color/g' /etc/pacman.conf && \
+    printf "[multilib]\nInclude = /etc/pacman.d/mirrorlist\n" | tee -a /etc/pacman.conf && \
+    sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/g' /etc/makepkg.conf && \
+    pacman-key --init && pacman-key --populate && \
+    pacman -Syu --noconfirm && \
+    pacman -S \
+        wget \
+        base-devel \
+        git \
+        --noconfirm && \
+    useradd -m --shell=/bin/bash build && usermod -L build && \
     echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Install AUR packages
+# Distrobox Integration
+RUN git clone https://github.com/89luca89/distrobox.git --single-branch /tmp/distrobox && \
+    cp /tmp/distrobox/distrobox-host-exec /usr/bin/distrobox-host-exec && \
+    ln -s /usr/bin/distrobox-host-exec /usr/bin/flatpak && \
+    wget https://github.com/1player/host-spawn/releases/download/$(cat /tmp/distrobox/distrobox-host-exec | grep host_spawn_version= | cut -d "\"" -f 2)/host-spawn-$(uname -m) -O /usr/bin/host-spawn && \
+    chmod +x /usr/bin/host-spawn && \
+    rm -drf /tmp/distrobox
+
+# Install packages Distrobox adds automatically, this speeds up first launch
+RUN pacman -S \
+        bash-completion \
+        bc \
+        curl \
+        diffutils \
+        findutils \
+        glibc \
+        gnupg \
+        inetutils \
+        keyutils \
+        less \
+        lsof \
+        man-db \
+        man-pages \
+        mlocate \
+        mtr \
+        ncurses \
+        nss-mdns \
+        openssh \
+        pigz \
+        pinentry \
+        procps-ng \
+        rsync \
+        shadow \
+        sudo \
+        tcpdump \
+        time \
+        traceroute \
+        tree \
+        tzdata \
+        unzip \
+        util-linux \
+        util-linux-libs \
+        vte-common \
+        wget \
+        words \
+        xorg-xauth \
+        zip \
+        mesa \
+        opengl-driver \
+        vulkan-intel \
+        vte-common \
+        vulkan-radeon \
+        --noconfirm
+
+# Add paru and install AUR packages
 USER build
 WORKDIR /home/build
-RUN paru -S \
-        aur/protontricks \
-        aur/vkbasalt \
-        aur/lib32-vkbasalt \
-        aur/obs-vkcapture-git \
-        aur/lib32-obs-vkcapture-git \
-        aur/lib32-gperftools \
-        aur/steamcmd \
+RUN git clone https://aur.archlinux.org/paru-bin.git --single-branch && \
+    cd paru-bin && \
+    makepkg -si --noconfirm && \
+    cd .. && \
+    rm -drf paru-bin && \
+    paru -S \
+        aur/adw-gtk3 \
         --noconfirm
 USER root
 WORKDIR /
 
 # Cleanup
-# Native march & tune. This is a gaming image and not something a user is going to compile things in with the intent to share.
-# We do this last because it'll only apply to updates the user makes going forward. We don't want to optimize for the build host's environment.
-RUN sed -i 's@ (Runtime)@@g' /usr/share/applications/steam.desktop && \
-    sed -i 's/-march=x86-64 -mtune=generic/-march=native -mtune=native/g' /etc/makepkg.conf && \
+RUN sed -i 's@#en_US.UTF-8@en_US.UTF-8@g' /etc/locale.gen && \
     userdel -r build && \
     rm -drf /home/build && \
     sed -i '/build ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
@@ -81,20 +94,36 @@ RUN sed -i 's@ (Runtime)@@g' /usr/share/applications/steam.desktop && \
         /tmp/* \
         /var/cache/pacman/pkg/*
 
-FROM bazzite-arch as bazzite-arch-gnome
+FROM arch-distrobox AS arch-distrobox-amdgpupro
 
-# Replace KDE portal with GNOME portal, swap included icon theme.
-RUN sed -i 's/-march=native -mtune=native/-march=x86-64 -mtune=generic/g' /etc/makepkg.conf && \
-    pacman -Rnsdd \
-        xdg-desktop-portal-kde \
+# Install amdgpu-pro, remove other drivers
+RUN pacman -R \
+        libglvnd \
+        vulkan-intel \
+        vulkan-radeon \
+        mesa \
         --noconfirm && \
-    pacman -S \
-        xdg-desktop-portal-gtk \
-        xdg-desktop-portal-gnome \
+    useradd -m --shell=/bin/bash build && usermod -L build && \
+    echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+USER build
+WORKDIR /home/build
+RUN paru -S \
+        amdgpu-pro-oglp \
+        lib32-amdgpu-pro-oglp \
+        vulkan-amdgpu-pro \
+        lib32-vulkan-amdgpu-pro \
+        amf-amdgpu-pro \
         --noconfirm
+USER root
+WORKDIR /
 
 # Cleanup
-RUN sed -i 's/-march=x86-64 -mtune=generic/-march=native -mtune=native/g' /etc/makepkg.conf && \
+RUN userdel -r build && \
+    rm -drf /home/build && \
+    sed -i '/build ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
+    sed -i '/root ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
     rm -rf \
         /tmp/* \
         /var/cache/pacman/pkg/*
