@@ -43,15 +43,18 @@ RUN pacman -S \
         glibc \
         gnupg \
         inetutils \
+        jdk-openjdk \
         keyutils \
         less \
         lsof \
         man-db \
         man-pages \
+        mesa \
         mlocate \
         mtr \
         ncurses \
         nss-mdns \
+        opengl-driver \
         openssh \
         pigz \
         pinentry \
@@ -68,16 +71,10 @@ RUN pacman -S \
         util-linux \
         util-linux-libs \
         vte-common \
-        svn \
         wget \
         words \
         xorg-xauth \
         zip \
-        mesa \
-        opengl-driver \
-        vulkan-intel \
-        vte-common \
-        vulkan-radeon \
         --noconfirm
 
 # My Own custom packages I need
