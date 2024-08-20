@@ -68,15 +68,23 @@ RUN pacman -S \
       xorg-xauth \
       zip \
       --noconfirm
+# bloated stuff gets its own layer
+# LC_ALL=C.UTF-8 pacman -Qi | awk '/^Name/{name=$3} /^Installed Size/{print $4$5, name}' | LC_ALL=C.UTF-8 sort -h
+
+RUN pacman -S base-devel
+RUN pacman -S chromium
+RUN pacman -S rclone
+RUN pacman -S ffmpeg
+RUN pacman -S yt-dlp
+RUN pacman -S svn
+RUN pacman -S shellcheck
 
 # My Own custom packages I need
 RUN pacman -S \
       android-tools \
-      base-devel \
       btop \
       curl \
       dos2unix \
-      ffmpeg \
       fzf \
       git \
       htop \
@@ -91,7 +99,6 @@ RUN pacman -S \
       qrencode \
       rsync \
       scrcpy \
-      shellcheck \
       stress \
       tldr \
       tmux \
@@ -101,7 +108,6 @@ RUN pacman -S \
       wl-clipboard \
       xorg-xev \
       xorg-xkill \
-      yt-dlp \
       zsh \
       zsh-autosuggestions \
       zsh-completions \
