@@ -74,6 +74,7 @@ RUN pacman -S chromium --noconfirm
 RUN pacman -S rclone --noconfirm
 RUN pacman -S ffmpeg --noconfirm
 RUN pacman -S jdk-openjdk --noconfirm
+
 # My Own custom packages I need
 RUN pacman -S \
       android-tools \
@@ -94,7 +95,7 @@ RUN pacman -S \
       qrencode \
       rsync \
       scrcpy \
-      shellcheck
+      shellcheck \
       stress \
       svn \
       tldr \
