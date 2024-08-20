@@ -35,7 +35,6 @@ RUN pacman -S \
       glibc \
       gnupg \
       inetutils \
-      jdk-openjdk \
       keyutils \
       less \
       lsof \
@@ -71,14 +70,10 @@ RUN pacman -S \
 # bloated stuff gets its own layer
 # LC_ALL=C.UTF-8 pacman -Qi | awk '/^Name/{name=$3} /^Installed Size/{print $4$5, name}' | LC_ALL=C.UTF-8 sort -h
 
-RUN pacman -S base-devel
-RUN pacman -S chromium
-RUN pacman -S rclone
-RUN pacman -S ffmpeg
-RUN pacman -S yt-dlp
-RUN pacman -S svn
-RUN pacman -S shellcheck
-
+RUN pacman -S chromium --noconfirm
+RUN pacman -S rclone --noconfirm
+RUN pacman -S ffmpeg --noconfirm
+RUN pacman -S jdk-openjdk --noconfirm
 # My Own custom packages I need
 RUN pacman -S \
       android-tools \
@@ -99,7 +94,9 @@ RUN pacman -S \
       qrencode \
       rsync \
       scrcpy \
+      shellcheck
       stress \
+      svn \
       tldr \
       tmux \
       unarchiver \
@@ -108,6 +105,7 @@ RUN pacman -S \
       wl-clipboard \
       xorg-xev \
       xorg-xkill \
+      yt-dlp \
       zsh \
       zsh-autosuggestions \
       zsh-completions \
