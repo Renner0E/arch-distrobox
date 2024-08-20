@@ -74,6 +74,7 @@ RUN pacman -S \
       android-tools \
       base-devel \
       btop \
+      chromium \
       curl \
       dos2unix \
       ffmpeg \
