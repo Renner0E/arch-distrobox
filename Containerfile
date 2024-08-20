@@ -74,47 +74,6 @@ RUN pacman -S \
       android-tools \
       base-devel \
       btop \
-      chromium \
-      curl \
-      dos2unix \
-      ffmpeg \
-      fzf \
-      git \
-      htop \
-      iftop \
-      lf \
-      man \
-      mediainfo \
-      neovim \
-      nvtop \
-      openssl \
-      p7zip \
-      qrencode \
-      rclone \
-      rsync \
-      scrcpy \
-      shellcheck \
-      stress \
-      tldr \
-      tmux \
-      unarchiver \
-      unrar \
-      wget \
-      wl-clipboard \
-      xorg-xev \
-      xorg-xkill \
-      yt-dlp \
-      zsh \
-      zsh-autosuggestions \
-      zsh-completions \
-      zsh-syntax-highlighting \
-      --noconfirm
-
-# My Own custom packages I need
-RUN pacman -S \
-      android-tools \
-      base-devel \
-      btop \
       curl \
       dos2unix \
       ffmpeg \
