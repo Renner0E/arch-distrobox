@@ -119,6 +119,7 @@ RUN git clone https://aur.archlinux.org/paru-bin.git --single-branch && \
   rm -drf paru-bin && \
   paru -S \
   aur/gallery-dl-bin \
+  aur/hydroxide \
         --noconfirm
 
 USER root
