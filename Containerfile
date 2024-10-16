@@ -70,7 +70,7 @@ RUN pacman -S chromium --noconfirm
 RUN pacman -S rclone --noconfirm
 RUN pacman -S ffmpeg --noconfirm
 RUN pacman -S jdk-openjdk --noconfirm
-
+RUN pacman -S mpd mpc ncmpcpp pipewire wireplumber --noconfirm
 # My Own custom packages I need
 RUN pacman -S \
       android-tools \
