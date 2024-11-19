@@ -3,13 +3,14 @@ FROM quay.io/toolbx/arch-toolbox AS arch-distrobox
 # Pacman Initialization
 # Create build user
 RUN sed -i 's/#Color/Color/g' /etc/pacman.conf && \
-  printf "[multilib]\nInclude = /etc/pacman.d/mirrorlist\n" | tee -a /etc/pacman.conf && \
-  sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/g' /etc/makepkg.conf && \
-  pacman-key --init && pacman-key --populate && \
-  pacman -Syu --noconfirm && \
-  useradd -m --shell=/bin/bash build && usermod -L build && \
-  echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-  echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    printf "[multilib]\nInclude = /etc/pacman.d/mirrorlist\n" | tee -a /etc/pacman.conf && \
+    sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/g' /etc/makepkg.conf && \
+    pacman-key --init && pacman-key --populate && \
+    pacman -Syu --noconfirm && \
+    useradd -m --shell=/bin/bash build && usermod -L build && \
+    echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    pacman -S --clean --clean --noconfirm
 
 # Distrobox Integration
 RUN git clone https://github.com/89luca89/distrobox.git --single-branch /tmp/distrobox && \
@@ -62,15 +63,17 @@ RUN pacman -S \
       words \
       xorg-xauth \
       zip \
-      --noconfirm
+      --noconfirm && \
+      pacman -S --clean --clean --noconfirm
 # bloated stuff gets its own layer
 # LC_ALL=C.UTF-8 pacman -Qi | awk '/^Name/{name=$3} /^Installed Size/{print $4$5, name}' | LC_ALL=C.UTF-8 sort -h
 
-RUN pacman -S chromium --noconfirm
-RUN pacman -S rclone --noconfirm
-RUN pacman -S ffmpeg --noconfirm
-RUN pacman -S jdk-openjdk --noconfirm
-RUN pacman -S mpd mpc ncmpcpp pipewire wireplumber --noconfirm
+RUN pacman -S chromium --noconfirm && pacman -S --clean --clean --noconfirm
+RUN pacman -S rclone --noconfirm && pacman -S --clean --clean --noconfirm
+RUN pacman -S ffmpeg --noconfirm && pacman -S --clean --clean --noconfirm
+RUN pacman -S jdk-openjdk --noconfirm && pacman -S --clean --clean --noconfirm
+
+#RUN pacman -S mpd mpc ncmpcpp pipewire wireplumber --noconfirm
 # My Own custom packages I need
 RUN pacman -S \
       android-tools \
@@ -107,19 +110,19 @@ RUN pacman -S \
       zsh-autosuggestions \
       zsh-completions \
       zsh-syntax-highlighting \
-      --noconfirm
+      --noconfirm && \
+      pacman -S --clean --clean --noconfirm
 
 # Add paru and install AUR packages
 USER build
 WORKDIR /home/build
 RUN git clone https://aur.archlinux.org/paru-bin.git --single-branch && \
-  cd paru-bin && \
-  makepkg -si --noconfirm && \
-  cd .. && \
-  rm -drf paru-bin && \
-  paru -S \
-  aur/gallery-dl-bin \
-  aur/hydroxide \
+    cd paru-bin && \
+    makepkg -si --noconfirm && \
+    cd .. && \
+    rm -drf paru-bin && \
+    paru -S \
+        aur/nexusmods-app-bin \
         --noconfirm
 
 USER root
@@ -131,6 +134,4 @@ RUN sed -i 's@#en_US.UTF-8@en_US.UTF-8@g' /etc/locale.gen && \
     rm -drf /home/build && \
     sed -i '/build ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
     sed -i '/root ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
-    rm -rf \
-        /tmp/* \
-        /var/cache/pacman/pkg/*
+    rm -rf "/tmp/*"
