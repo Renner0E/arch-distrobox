@@ -15,7 +15,12 @@ RUN sed -i 's/#Color/Color/g' /etc/pacman.conf && \
 # Distrobox Integration
 RUN git clone https://github.com/89luca89/distrobox.git --single-branch /tmp/distrobox && \
   cp /tmp/distrobox/distrobox-host-exec /usr/bin/distrobox-host-exec && \
-  ln -s /usr/bin/distrobox-host-exec /usr/bin/flatpak && \
+  ln -fs /usr/libexec/flatpak-xdg-utils/flatpak-spawn /usr/bin/ && \
+  ln -fs /usr/bin/distrobox-host-exec /usr/bin/bootc && \
+  ln -fs /usr/bin/distrobox-host-exec /usr/bin/docker && \
+  ln -fs /usr/bin/distrobox-host-exec /usr/bin/flatpak && \
+  ln -fs /usr/bin/distrobox-host-exec /usr/bin/podman && \
+  ln -fs /usr/bin/distrobox-host-exec /usr/bin/rpm-ostree && \
   wget https://github.com/1player/host-spawn/releases/download/$(cat /tmp/distrobox/distrobox-host-exec | grep host_spawn_version= | cut -d "\"" -f 2)/host-spawn-$(uname -m) -O /usr/bin/host-spawn && \
   chmod +x /usr/bin/host-spawn && \
   rm -drf /tmp/distrobox
